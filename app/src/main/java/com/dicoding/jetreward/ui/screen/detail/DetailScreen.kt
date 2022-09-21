@@ -83,10 +83,9 @@ fun DetailContent(
     var totalPoint by rememberSaveable { mutableStateOf(0) }
     var orderCount by rememberSaveable { mutableStateOf(count) }
 
-    Column {
-
+    Column(modifier = modifier) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .weight(1f)
         ) {
@@ -131,7 +130,6 @@ fun DetailContent(
             }
         }
         Spacer(modifier = Modifier.fillMaxWidth().height(4.dp).background(LightGray))
-
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
@@ -142,7 +140,6 @@ fun DetailContent(
                 onProductDecreased = { if (orderCount > 0) orderCount-- },
                 modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 16.dp)
             )
-
             totalPoint = basePoint * orderCount
             OrderButton(
                 text = stringResource(R.string.add_to_cart, totalPoint),
@@ -165,6 +162,7 @@ fun DetailContentPreview() {
             7500,
             1,
             onBackClick = {},
-            onAddToCart = {})
+            onAddToCart = {}
+        )
     }
 }

@@ -2,6 +2,7 @@ package com.dicoding.jetreward.ui.screen.cart
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -75,14 +76,16 @@ fun CartContent(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            state.orderReward.forEach { item ->
-                item {
-                    CartItem(
-                        reward = item,
-                        onProductCountChanged = onProductCountChanged
-                    )
-                    Divider()
-                }
+            items(state.orderReward, key = { it.reward.id }) { item ->
+                CartItem(
+                    rewardId = item.reward.id,
+                    image = item.reward.image,
+                    title = item.reward.title,
+                    totalPoint = item.reward.requiredPoint * item.count,
+                    count = item.count,
+                    onProductCountChanged = onProductCountChanged,
+                )
+                Divider()
             }
         }
     }

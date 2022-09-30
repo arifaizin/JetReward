@@ -33,8 +33,9 @@ import com.dicoding.jetreward.ui.theme.JetRewardTheme
 @Composable
 fun JetRewardApp(
     modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
 ) {
-    val navController = rememberNavController()
+//    val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 

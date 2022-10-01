@@ -23,7 +23,12 @@ fun OrderButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.fillMaxWidth().height(52.dp).semantics(mergeDescendants = true) { contentDescription = "Order Button" }
+        modifier = modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = "Order Button"
+            }
     ) {
         Text(
             text = text,

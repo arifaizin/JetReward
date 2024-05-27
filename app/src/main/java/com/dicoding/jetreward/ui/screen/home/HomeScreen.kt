@@ -1,5 +1,10 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.dicoding.jetreward.ui.screen.home
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +24,8 @@ import com.dicoding.jetreward.ui.components.RewardItem
 
 @Composable
 fun HomeScreen(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(
         factory = ViewModelFactory(Injection.provideRepository())
@@ -38,6 +45,8 @@ fun HomeScreen(
             }
             is UiState.Success -> {
                 HomeContent(
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedContentScope = animatedContentScope,
                     orderReward = uiState.data,
                     modifier = modifier,
                     navigateToDetail = navigateToDetail,
@@ -50,6 +59,8 @@ fun HomeScreen(
 
 @Composable
 fun HomeContent(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
     orderReward: List<OrderReward>,
     modifier: Modifier = Modifier,
     navigateToDetail: (Long) -> Unit,
@@ -63,6 +74,8 @@ fun HomeContent(
     ) {
         items(orderReward) { data ->
             RewardItem(
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
                 image = data.reward.image,
                 title = data.reward.title,
                 requiredPoint = data.reward.requiredPoint,

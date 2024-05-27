@@ -2,6 +2,8 @@ package com.dicoding.jetreward
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
@@ -30,6 +32,7 @@ import com.dicoding.jetreward.ui.screen.home.HomeScreen
 import com.dicoding.jetreward.ui.screen.profile.ProfileScreen
 import com.dicoding.jetreward.ui.theme.JetRewardTheme
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun JetRewardApp(
     modifier: Modifier = Modifier,
@@ -46,50 +49,56 @@ fun JetRewardApp(
         },
         modifier = modifier
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Screen.Home.route) {
-                HomeScreen(
-                    navigateToDetail = { rewardId ->
-                        navController.navigate(Screen.DetailReward.createRoute(rewardId))
-                    }
-                )
-            }
-            composable(Screen.Cart.route) {
-                val context = LocalContext.current
-                CartScreen(
-                    onOrderButtonClicked = { message ->
-                        shareOrder(context, message)
-                    }
-                )
-            }
-            composable(Screen.Profile.route) {
-                ProfileScreen()
-            }
-            composable(
-                route = Screen.DetailReward.route,
-                arguments = listOf(navArgument("rewardId") { type = NavType.LongType }),
+        SharedTransitionLayout(modifier = modifier) {
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Home.route,
+                modifier = Modifier.padding(innerPadding)
             ) {
-                val id = it.arguments?.getLong("rewardId") ?: -1L
-                DetailScreen(
-                    rewardId = id,
-                    navigateBack = {
-                        navController.navigateUp()
-                    },
-                    navigateToCart = {
-                        navController.popBackStack()
-                        navController.navigate(Screen.Cart.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
+                composable(Screen.Home.route) {
+                    HomeScreen(
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedContentScope = this@composable,
+                        navigateToDetail = { rewardId ->
+                            navController.navigate(Screen.DetailReward.createRoute(rewardId))
                         }
-                    }
-                )
+                    )
+                }
+                composable(Screen.Cart.route) {
+                    val context = LocalContext.current
+                    CartScreen(
+                        onOrderButtonClicked = { message ->
+                            shareOrder(context, message)
+                        }
+                    )
+                }
+                composable(Screen.Profile.route) {
+                    ProfileScreen()
+                }
+                composable(
+                    route = Screen.DetailReward.route,
+                    arguments = listOf(navArgument("rewardId") { type = NavType.LongType }),
+                ) {
+                    val id = it.arguments?.getLong("rewardId") ?: -1L
+                    DetailScreen(
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedContentScope = this@composable,
+                        rewardId = id,
+                        navigateBack = {
+                            navController.navigateUp()
+                        },
+                        navigateToCart = {
+                            navController.popBackStack()
+                            navController.navigate(Screen.Cart.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
             }
         }
     }

@@ -1,5 +1,8 @@
 package com.dicoding.jetreward.ui.components
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -19,37 +22,52 @@ import com.dicoding.jetreward.R
 import com.dicoding.jetreward.ui.theme.JetRewardTheme
 import com.dicoding.jetreward.ui.theme.Shapes
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun RewardItem(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
     image: Int,
     title: String,
     requiredPoint: Int,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-    ) {
-        Image(
-            painter = painterResource(image),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(170.dp)
-                .clip(Shapes.medium)
-        )
-        Text(
-            text = title,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.ExtraBold
+    with(sharedTransitionScope) {
+        Column(
+            modifier = modifier
+        ) {
+            Image(
+                painter = painterResource(image),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(170.dp)
+                    .clip(Shapes.medium)
+                    .sharedElement(
+                        state = rememberSharedContentState(
+                            key = "image-$title"
+                        ),
+                        animatedVisibilityScope = animatedContentScope
+                    ),
             )
-        )
-        Text(
-            text = stringResource(R.string.required_point, requiredPoint),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.secondary
-        )
+            Text(
+                text = title,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.ExtraBold
+                ),
+                modifier = Modifier.sharedElement(
+                    sharedTransitionScope.rememberSharedContentState(key = "text-$title"),
+                    animatedVisibilityScope = animatedContentScope,
+                )
+            )
+            Text(
+                text = stringResource(R.string.required_point, requiredPoint),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.secondary
+            )
+        }
     }
 }
 
@@ -57,6 +75,6 @@ fun RewardItem(
 @Preview(showBackground = true)
 fun RewardItemPreview() {
     JetRewardTheme {
-        RewardItem(R.drawable.reward_4, "Jaket Hoodie Dicoding", 4000)
+//        RewardItem(R.drawable.reward_4, "Jaket Hoodie Dicoding", 4000)
     }
 }

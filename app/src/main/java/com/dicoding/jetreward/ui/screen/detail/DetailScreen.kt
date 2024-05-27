@@ -1,6 +1,11 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.dicoding.jetreward.ui.screen.detail
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,7 +46,9 @@ fun DetailScreen(
         )
     ),
     navigateBack: () -> Unit,
-    navigateToCart: () -> Unit
+    navigateToCart: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope
 ) {
     viewModel.uiState.collectAsState(initial = UiState.Loading).value.let { uiState ->
         when (uiState) {
@@ -51,6 +58,8 @@ fun DetailScreen(
             is UiState.Success -> {
                 val data = uiState.data
                 DetailContent(
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedContentScope = animatedContentScope,
                     data.reward.image,
                     data.reward.title,
                     data.reward.requiredPoint,
@@ -69,6 +78,8 @@ fun DetailScreen(
 
 @Composable
 fun DetailContent(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
     @DrawableRes image: Int,
     title: String,
     basePoint: Int,
@@ -87,44 +98,54 @@ fun DetailContent(
                 .verticalScroll(rememberScrollState())
                 .weight(1f)
         ) {
-            Box {
-                Image(
-                    painter = painterResource(image),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = modifier.height(400.dp)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = stringResource(R.string.back),
-                    modifier = Modifier.padding(16.dp).clickable { onBackClick() }
-                )
-            }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = title,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.ExtraBold
-                    ),
-                )
-                Text(
-                    text = stringResource(R.string.required_point, basePoint),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.ExtraBold
-                    ),
-                    color = MaterialTheme.colorScheme.secondary
-                )
-                Text(
-                    text = stringResource(R.string.lorem_ipsum),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Justify,
-                )
+            with(sharedTransitionScope) {
+                Box {
+                    Image(
+                        painter = painterResource(image),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = modifier.height(400.dp)
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+                            .sharedElement(
+                                sharedTransitionScope.rememberSharedContentState(key = "image-$title"),
+                                animatedVisibilityScope = animatedContentScope
+                            )
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = stringResource(R.string.back),
+                        modifier = Modifier.padding(16.dp).clickable { onBackClick() }
+                    )
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = title,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        modifier = Modifier.sharedElement(
+                            sharedTransitionScope.rememberSharedContentState(key = "text-$title"),
+                            animatedVisibilityScope = animatedContentScope,
+                        )
+                    )
+                    Text(
+                        text = stringResource(R.string.required_point, basePoint),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    Text(
+                        text = stringResource(R.string.lorem_ipsum),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Justify,
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.fillMaxWidth().height(4.dp).background(LightGray))
@@ -154,13 +175,13 @@ fun DetailContent(
 @Composable
 fun DetailContentPreview() {
     JetRewardTheme {
-        DetailContent(
-            R.drawable.reward_4,
-            "Jaket Hoodie Dicoding",
-            7500,
-            1,
-            onBackClick = {},
-            onAddToCart = {}
-        )
+//        DetailContent(
+//            R.drawable.reward_4,
+//            "Jaket Hoodie Dicoding",
+//            7500,
+//            1,
+//            onBackClick = {},
+//            onAddToCart = {}
+//        )
     }
 }
